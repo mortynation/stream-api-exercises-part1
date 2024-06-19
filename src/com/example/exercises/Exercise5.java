@@ -1,7 +1,9 @@
 package com.example.exercises;
 
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -9,6 +11,9 @@ import com.example.dao.CityDao;
 import com.example.dao.CountryDao;
 import com.example.dao.InMemoryWorldDao;
 import com.example.domain.City;
+import com.example.domain.Country;
+
+import javax.swing.text.html.Option;
 
 /**
  * 
@@ -21,14 +26,16 @@ public class Exercise5 {
 
 	public static void main(String[] args) {
 		// Find the highest populated capital city of each continent
-		Function<ContinentCityPair, City> extractCity = ContinentCityPair::city;
-		var highPopulatedCapitalCityOfEachContinent = 
-				countryDao.findAllCountries()
-				          .stream()
-				          .map(country -> new ContinentCityPair(country.getContinent(),cityDao.findCityById(country.getCapital())))
-				          .filter(pair -> Objects.nonNull(pair.city()))
-				          .collect(Collectors.groupingBy(ContinentCityPair::continent,Collectors.maxBy(Comparator.comparing(extractCity.andThen(City::getPopulation)))));
-		highPopulatedCapitalCityOfEachContinent.forEach((continent,pair) -> System.out.printf("%s: %s\n",continent,pair.get().city()));	
+		Map<String, Optional<City>> result = countryDao.getAllContinents().stream().filter(Objects::nonNull)
+				.collect(Collectors.toMap(continent -> continent,
+						continent -> countryDao.findCountriesByContinent(continent).stream()
+								.map(Country::getCapital).map(cityDao::findCityById)
+								.filter(Objects::nonNull)
+								.max(Comparator.comparingInt(City::getPopulation))
+						));
+
+		result.forEach((key, value) -> System.out.println(key + " " + value));
+
 	}
 
 }

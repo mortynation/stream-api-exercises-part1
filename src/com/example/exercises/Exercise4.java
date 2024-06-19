@@ -2,12 +2,15 @@ package com.example.exercises;
 
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.example.dao.CityDao;
 import com.example.dao.CountryDao;
 import com.example.dao.InMemoryWorldDao;
 import com.example.domain.City;
 import com.example.domain.Country;
+
+import javax.swing.text.html.Option;
 
 /**
  * 
@@ -20,15 +23,16 @@ public class Exercise4 {
 
 	public static void main(String[] args) {
 		// Find the highest populated capital city
-		var highPopulatedCapitalCity = 
+		var highPopulatedCapitalCity =
 				countryDao.findAllCountries()
-				          .stream()
-				          .map(Country::getCapital)
-				          .filter(Objects::nonNull)
-				          .map(cityDao::findCityById)
-				          .filter(Objects::nonNull)
-				          .max(Comparator.comparing(City::getPopulation));
-		highPopulatedCapitalCity.ifPresent(System.out::println);		          
+						.stream()
+						.map(Country::getCapital)
+						.map(cityDao::findCityById)
+						.filter(Objects::nonNull)
+						.max(Comparator.comparing(City::getPopulation));
+
+
+		System.out.println(highPopulatedCapitalCity.toString());
 	}
 
 }

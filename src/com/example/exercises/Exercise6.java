@@ -1,10 +1,12 @@
 package com.example.exercises;
 
 import java.util.Comparator;
-import java.util.function.Function;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.example.dao.CountryDao;
 import com.example.dao.InMemoryWorldDao;
+import com.example.domain.Country;
 
 /**
  * 
@@ -16,13 +18,20 @@ public class Exercise6 {
 
 	public static void main(String[] args) {
 		// Sort the countries by number of their cities in descending order
-		Function<CountryCityCountPair, Integer> countExtracter = CountryCityCountPair::count;
-		var countriesWithCityCountInDescOrder = countryDao.findAllCountries()
-		          .stream()
-		          .map(country -> new CountryCityCountPair(country,country.getCities().size()))
-		          .sorted(Comparator.comparing(countExtracter).reversed())
-		          .toList();
-		countriesWithCityCountInDescOrder.forEach(System.out::println);
+		Map<Country, Integer> lstOfCountries = countryDao.findAllCountries().stream().sorted(new Comparator<Country>() {
+					@Override
+					public int compare(Country o1, Country o2) {
+						return Integer.compare(o2.getCities().size(), o1.getCities().size());
+					}
+				})
+				.collect(Collectors.toMap(country -> country, country -> country.getCities().size()));
+
+
+
+
+//		lstOfCountries.forEach((key, val) -> System.out.println(key + " " + val));
+
+
 	}
 
 }
